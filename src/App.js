@@ -1,24 +1,49 @@
-import logo from './logo.svg';
-import './App.css';
+import React, {useState, useEffect} from 'react';
+import styles from './App.module.css';
 
 function App() {
+  const [data, setData] = useState(null)
+  const [text, setText] = useState('')
+  const [results, setResults] = useState([])
+
+  useEffect(() => {
+    fetch('https://restcountries.eu/rest/v2/all')
+    .then(res => res.json())
+    .then(d => {
+      d = d.map(item => item.name)
+      setData(d)
+    })
+  }, [])
+
+  const inputHandle = (event) => {
+    let txt = event.target.value
+    txt = txt ? txt[0].toUpperCase() + txt.slice(1) : txt
+    let filteredData = txt ? data.filter(item => item.startsWith(txt)) : []
+    setResults(filteredData)
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    data ?
+    <div className={styles.App}>
+      <label>Search - </label>
+      <input
+        onChange={(e) => inputHandle(e)}
+      />
+      {
+        results.length ?
+        <div className={styles.Results}>
+          {
+            results.map(res => {
+              return (
+                  <p key={res}>{res}</p>
+                )
+            })
+          }
+        </div>
+        : null
+      }
     </div>
+    : <h3>Loading</h3>
   );
 }
 
